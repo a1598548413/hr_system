@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<!--设置浏览器的布局视口，只在移动端浏览器起作用-->
+	<meta name="viewport" content="width=width-device,initial-scale=1,user-scalable=no" />
+	<!--引入bootstrap的核心css-->
+	<link rel="stylesheet" href="js/bootstrap/css/bootstrap.css" />
+	<title>搜索员工</title>
+	<!--判断如果是IE9以下，引入兼容h5标签的js文件，注意空格的位置-->		
+	<!--[if lt IE 9]>
+	
+	<script src="js/bootstrap/js/respond.min.js"></script>
+	<script src="js/bootstrap/js/html5shiv.min.js"></script>		
+	<![end if] -->
+
+	<style type="text/css">
+		.pagination {
+			margin: 0!important;
+		}
+	</style>
+</head>
+<body>	
+	<div class="container">
+		
+		<ol class="breadcrumb">
+			<li><a href="#">人力资源管理系统</a></li>
+			<li><a href="#">员工管理</a></li>			
+			<li>搜索员工数据</li>
+		</ol>
+
+		<h2 class="page-header">员工数据列表</h2>
+
+		<div class="row">
+			<form class="form-inline">
+				<div class="form-group">
+					<label for="">部门</label>
+					<select class="form-control">					
+						<option value="">全部</option>
+						<option value="10">开发部</option>
+						<option value="20">财务部</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="">职务</label>
+					<select class="form-control">					
+						<option value="">全部</option>
+						<option value="1">文员</option>
+						<option value="2">程序员</option>
+					</select>
+				</div>	
+				<div class="form-group">
+					<div class="input-group">
+						<input type="text" placeholder="请输入员工姓名关键字" class="form-control">
+	                	<span class="input-group-btn">
+	                    	<button type="button" class="btn btn-primary">百度搜素</button>
+	                    </span>	                	
+	                </div>					
+				</div>				
+			</form>
+		</div>
+
+		<div class="row">
+			<table class="table table-bordered table-striped" id="dataTable">
+				<thead>
+					<tr>
+						<th>员工编号</th>
+						<th>员工姓名</th>
+						<th>邮箱</th>
+						<th>电话</th>
+						<th>部门</th>
+						<th>职务</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>				
+					<tr>
+						<td>100</td>
+						<td>tom</td>
+						<td>tom@163.com</td>
+						<td>13012345678</td>
+						<td>开发部</td>
+						<td>程序员</td>
+						<td>
+							<a href="javascript:;" class="btn btn-primary btn-sm update-btn">修改</a>
+							<a href="javascript:;" class="btn btn-danger btn-sm del-btn" data-id="6">删除</a>
+							<a href="javascript:;" class="btn btn-success btn-sm del-btn" data-id="6">详情</a>
+						</td>
+					</tr>				
+				</tbody>
+			</table>
+		</div>
+		
+		<!-- 分页工具条 -->
+		<div class="row">
+			<div class="col-sm-4">
+				<div id="pagerInfo">共XX条数据，XX/XX页</div>
+			</div>
+			<div class="col-sm-8">
+				<nav id="pagerNav">
+		        	<ul class="pagination pagination-sm pull-right">
+		        		<li><a href="javascript:void(0);" id="firstBtn">首页</a></li>		
+		        		<li><a href="javascript:void(0);" id="prevBtn">上页</a></li> 		        		
+		        		<li><a href="javascript:void(0);" id="nextBtn">下页</a></li>               
+		        		<li><a href="javascript:void(0);" id="lastBtn">末页</a></li>
+		        	</ul>
+		        </nav>
+			</div>
+		</div>
+	</div>
+	
+	<!--引入jquery-->
+	<script src="js/jquery.js"></script>
+	<!-- 引入全局公共js文件 -->
+	<script type="text/javascript" src="js/global.js"></script>
+	<!--引入bootstrap的js功能-->
+	<script src="js/bootstrap/js/bootstrap.js"></script>
+	<!-- 引入layer弹出层js功能 -->
+	<script type="text/javascript" src="js/layer/layer.js"></script>
+	<script type="text/javascript">
+		
+		$(document).ready(function() {
+
+			
+
+		});		
+
+	</script>
+</body>
+</html>

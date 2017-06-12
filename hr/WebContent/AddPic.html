@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<!--设置浏览器的布局视口，只在移动端浏览器起作用-->
+	<meta name="viewport" content="width=width-device,initial-scale=1,user-scalable=no" />
+	<!--引入bootstrap的核心css-->
+	<link rel="stylesheet" href="js/bootstrap/css/bootstrap.css" />
+	<title>上传公司图片</title>
+	<!--判断如果是IE9以下，引入兼容h5标签的js文件，注意空格的位置-->		
+	<!--[if lt IE 9]>
+	
+	<script src="js/bootstrap/js/respond.min.js"></script>
+	<script src="js/bootstrap/js/html5shiv.min.js"></script>		
+	<![end if] -->
+</head>
+<body>	
+	<div class="container">		
+		
+		<form id="form1" class="form-horizontal">
+			<div class="form-group">
+				<label for="" class="col-sm-2">选择图片</label>
+				<div class="col-sm-10">
+					<input type="file" id="picData" name="picData" placeholder="请选择文件" class="form-control"/>
+				</div>					
+			</div>	
+			<div class="form-group">
+				<label for="" class="col-sm-2">图片描述</label>
+				<div class="col-sm-10">
+					<input type="text" id="picInfo" name="picInfo" placeholder="请输入图片描述" class="form-control"/>
+				</div>					
+			</div>
+			<div class="form-group">					
+				<div class="col-sm-10 col-sm-offset-2">					
+					<input type="button"  value="上传图片" class="btn btn-success" id="addBtn"/>
+					<input type="button"  value="取消" class="btn btn-danger" onclick="window.parent.layer.closeAll();"/>
+				</div>
+			</div>
+
+			<div class="form-group">					
+				<div class="col-sm-10 col-sm-offset-2">
+					<div class="progress" id="progress" style="display:none;">
+			        	<div id="son" class="progress-bar progress-bar-success progress-bar-striped active"> 
+			        		0%
+			            </div>        
+			        </div>					
+					<img id="previewImg" src="" alt="预览图" class="img-responsive">
+				</div>
+			</div>		
+		</form>
+	</div>
+	
+	<!--引入jquery-->
+	<script src="js/jquery.js"></script>
+	<!-- 引入全局公共js文件 -->
+	<script type="text/javascript" src="js/global.js"></script>
+	<!--引入bootstrap的js功能-->
+	<script src="js/bootstrap/js/bootstrap.js"></script>
+	<!-- 引入layer弹出层js功能 -->
+	<script type="text/javascript" src="js/layer/layer.js"></script>
+	<!-- 引入param插件 -->
+	<script type="text/javascript" src="js/param.js"></script>
+	<script type="text/javascript">
+		
+		$(document).ready(function() {
+
+			//当选择完图片之后预览图片
+			$('#picData').change(function() {
+				
+				//文件对象
+				var file = this.files[0];
+
+				if (file.type.match(/image/) == null) {
+					layer.msg('请选择一个图片文件');
+					this.value = '';
+					return false;
+				}
+
+				if (file.size > 1024 * 1024 * 1) {
+					layer.msg('图片大小不能超过1M');
+					this.value = '';
+					return false;
+				}			
+
+				//读取图片数据
+				var fr = new FileReader();
+
+				fr.readAsDataURL(file);
+
+				//读取完毕回调函数，显示预览图
+				fr.onload = function() {
+					
+					$('#previewImg').attr('src',this.result);
+
+				};
+
+			});
+
+			//表单验证函数
+			function checkForm() {
+
+				//验证文件数据
+
+				var files = $('#picData').get(0).files;//文件对象
+
+				if(files.length == 0) {
+					layer.msg('请先选择上传图片！')
+					return false;
+				}
+
+				//验证图片描述
+
+				var picInfo = $('#picInfo');
+
+				if (picInfo.val() == '' || picInfo.val().length > 30) {
+					layer.msg('图片描述不能为空，最多30字符');
+					return false;
+				}
+
+				return true;
+			}
+
+			//上传图片
+			$('#addBtn').click(function() {
+				
+				if ( !checkForm() ) {
+					return;
+				}
+
+				//显示出进度条
+				$('#progress').show();
+
+				//ajax上传文件数据
+				var formData = new FormData();//表单对象
+
+				//添加图片文件元素
+				formData.append("picData", $('#picData').get(0).files[0] );
+				//添加图片文件描述
+				formData.append('picInfo', $('#picInfo').val() );
+
+				//异步请求
+				$.ajax({
+					url: baseUrl + '/AddPicServlet',
+					type: 'POST',					
+					data: formData,
+					processData: false, //一定设置false
+					contentType: false,  //一定设置false
+					//这里我们先拿到jQuery产生的 XMLHttpRequest对象，为其增加 progress 事件绑定，然后再返回交给ajax使用
+				　　xhr: function(){
+				　　　　　　var xhr = $.ajaxSettings.xhr();
+				
+				　　　　　　if(onprogress && xhr.upload) {
+				　　　　　　　　xhr.upload.addEventListener("progress" , onprogress, false);
+				　　　　　　　　return xhr;
+				　　　　　　}
+				　　} 
+				})
+				.done(function(data) {
+					layer.msg('上传图片成功!');
+
+					setTimeout(function() {
+						window.parent.location.reload();//刷新父窗口
+						window.parent.layer.closeAll(); //关闭当前模态层
+					},300);
+
+				})
+				.fail(function() {
+					layer.msg('网络请求失败');
+				})
+				.always(function() {
+					console.log("complete");
+				});		
+
+				/**
+				  * 侦查附件上传情况 ,这个方法大概0.05-0.1秒执行一次
+				  */
+				function onprogress(evt){
+					var loaded = evt.loaded;     //已经上传大小情况 
+					var tot = evt.total;      //附件总大小 
+					var per = Math.floor(100 * loaded / tot);  //已经上传的百分比 
+					$("#son").html( per +"%" );
+					$("#son").css("width" , per +"%");
+				}
+
+			});
+
+
+		});		
+
+	</script>
+</body>
+</html>

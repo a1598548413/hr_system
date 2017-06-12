@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<!--设置浏览器的布局视口，只在移动端浏览器起作用-->
+	<meta name="viewport" content="width=width-device,initial-scale=1,user-scalable=no" />
+	<!--引入bootstrap的核心css-->
+	<link rel="stylesheet" href="js/bootstrap/css/bootstrap.css" />
+	<title>公司图库</title>
+	<!--判断如果是IE9以下，引入兼容h5标签的js文件，注意空格的位置-->		
+	<!--[if lt IE 9]>
+	
+	<script src="js/bootstrap/js/respond.min.js"></script>
+	<script src="js/bootstrap/js/html5shiv.min.js"></script>		
+	<![end if] -->
+
+	<style type="text/css">
+		.img-list img {
+			border: none;
+			width: 200px;
+		}
+
+		.img-list .item {
+			position: absolute;
+			padding: 10px;
+			background: #eeeeee;
+			margin: 5px;
+		}
+
+		.img-list .item p {
+			font-size: 12px;
+			letter-spacing: 1px;
+			color: #333;
+			white-space: normal;
+			width: 200px;
+		}
+
+		.img-list .item .del-btn {
+			position: absolute;
+			top:0;
+			right: 0;
+			display: none;
+		}
+
+		.img-list .item .download-btn {
+			position: absolute;
+			bottom:0;
+			right: 0px;
+			display: none;
+		}
+
+		.img-list .item:hover .del-btn {
+			display: block;
+		}
+
+		.img-list .item:hover .download-btn {
+			display: block;
+		}
+	</style>
+</head>
+<body>	
+	<div class="container">
+		
+		<ol class="breadcrumb">
+			<li><a href="#">人力资源管理系统</a></li>
+			<li><a href="#">公司图库</a></li>			
+			<li>图片展示</li>
+		</ol>
+
+		<h2 class="page-header">图片展示列表</h2>
+
+		<div class="row">
+			<div class="col-sm-offset-8 col-sm-4">
+				<a href="#" class="btn btn-success btn-block" id="addBtn">添加图片</a>
+			</div>
+		</div>
+		
+		<!-- 图片列表 -->
+		<div class="row img-list">			
+			<div class="item">
+				<a href="#">
+					<img src="images/pic/01.jpg" alt="">
+				</a>
+				<p>这是图片的文字描述</p>
+				<a href="javascript:;" class="btn btn-danger btn-xs del-btn">删除</a>
+				<a href="javascript:;" class="btn btn-info btn-xs download-btn">下载</a>
+			</div>
+		</div>
+	</div>
+	
+	<!--引入jquery-->
+	<script src="js/jquery.js"></script>
+	<!-- 引入全局公共js文件 -->
+	<script type="text/javascript" src="js/global.js"></script>
+	<!--引入bootstrap的js功能-->
+	<script src="js/bootstrap/js/bootstrap.js"></script>
+	<!-- 引入layer弹出层js功能 -->
+	<script type="text/javascript" src="js/layer/layer.js"></script>
+	<!-- 引入瀑布流插件js -->
+	<script type="text/javascript" src="js/masonry/jquery.masonry.js"></script>
+
+	<script type="text/javascript">
+		
+		$(document).ready(function() {
+			
+			//图片列表容器
+			var $container = $('.img-list'); 			
+			
+		    //发出ajax异步请求，动态生成图片列表
+		    $.getJSON(baseUrl + '/QueryPicServlet',function(data) {
+
+				var html = '';
+
+				$.each(data,function(index,item) {
+
+					html = '<div class="item">';
+					html += '	<a href="ShowImg.html?picId=' + item.picId + '" target="_blank">';
+					html += '		<img src="' + baseUrl + '/GetPicServlet?picId=' + item.picId + '" alt="">';
+					html += '	</a>';
+					html += '	<p>' + item.picInfo + '</p>';
+					html += '	<a href="javascript:;" class="btn btn-danger btn-xs del-btn" data-id="' + item.picId + '">删除</a>';
+					html += '	<a href="' + baseUrl + '/DownloadPicServlet?picId=' + item.picId + '" class="btn btn-info btn-xs download-btn">下载</a>';
+					html += '</div>';
+
+					$container.append(html);
+				});
+
+				//图片加载之后
+			    $container.imagesLoaded(function(){
+					
+					//生成瀑布流布局
+			        $container.masonry({
+			            itemSelector: '.img-list .item',
+			            columnWidth: 5 //每两列之间的间隙为5像素
+			        });
+
+			    });
+
+		    })
+		    .error(function() {
+					layer.msg('网络请求错误');
+			});		
+
+			//添加图片按钮单击
+			$('#addBtn').click(function() {
+
+				layer.open({
+					title:'上传图片',
+				    type: 2, 				   
+				    area: ['620px', '600px'], //宽高
+				    content: 'AddPic.html'
+				});
+
+			});
+
+
+			//删除按钮单击事件
+			$('.img-list').on('click','.del-btn',function() {
+
+				var that = this;
+
+				var id = $(this).attr('data-id');
+
+				$.post(baseUrl + '/DelPicServlet',{picId:id},function(data) {
+
+					layer.msg('删除成功');
+
+					$(that).parents('.item').remove();//前端删除图片dom
+
+					//重新生成瀑布流布局
+			        $container.masonry({
+			            itemSelector: '.img-list .item',
+			            columnWidth: 5 //每两列之间的间隙为5像素
+			        });
+
+				});
+
+			});
+
+
+		});
+
+	</script>
+</body>
+</html>
